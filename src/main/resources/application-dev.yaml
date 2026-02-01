@@ -1,0 +1,9 @@
+spring:
+  config:
+    import:
+      - classpath:application-dev-actuator.yml
+      - classpath:application-dev-jte.yaml
+      - classpath:application-dev-log.yml
+      - classpath:application-dev-flyway.yml
+      - classpath:application-dev-postgresql.yml
+      - classpath:application-dev-redis.yml

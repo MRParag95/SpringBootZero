@@ -1,0 +1,13 @@
+logging:
+  level:
+    com:
+      thezerobytehunters:
+        springbootzero: DEBUG
+
+    org:
+      jooq:
+        tools:
+          LoggerListener: DEBUG
+      hibernate:
+        sql: DEBUG
+        type: TRACE
