@@ -3,15 +3,17 @@ package org.thezerobytehunter.springbootzero.base.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thezerobytehunter.springbootzero.base.config.AppConfig;
 import org.thezerobytehunter.springbootzero.base.entity.BaseEntity;
 import org.thezerobytehunter.springbootzero.base.payload.requests.IRequest;
 import org.thezerobytehunter.springbootzero.base.payload.responses.IResponse;
 import org.thezerobytehunter.springbootzero.base.repository.AbstractRepository;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public abstract class AbstractCRUDService<
         Response extends IResponse
         > implements IAbstractCRUDService< Entity, Request, Response > {
     private final AbstractRepository< Entity > repository;
+    private final AppConfig appConfig;
 
     @Transactional
     @Override
@@ -47,10 +50,10 @@ public abstract class AbstractCRUDService<
     }
 
     @Transactional( readOnly = true )
-    public List< Response > readAll( ) {
-        List< Entity > allEntities = getAll( );
+    public Set< Response > readAll( ) {
+        Set< Entity > allEntities = getAll( );
 
-        return allEntities.stream( ).map( this::convertToResponse ).toList( );
+        return allEntities.stream( ).map( this::convertToResponse ).collect( Collectors.toSet( ) );
     }
 
     @Transactional
@@ -70,6 +73,17 @@ public abstract class AbstractCRUDService<
         return updateEntity( request, entity );
     }
 
+    @Transactional
+    public void delete( Long id ) {
+        Entity entity = getById( id );
+
+        if ( appConfig.getSoftDelete( ) ) {
+            entity.setIsDeleted( true );
+            repository.save( entity );
+        } else {
+            repository.deleteById( id );
+        }
+    }
 
     public abstract void validateRequestData( Request request, Entity entity, Map< String, Set< String > > errorMessages );
 
@@ -79,7 +93,25 @@ public abstract class AbstractCRUDService<
 
     public abstract Response convertToResponse( Entity entity );
 
-    public abstract Entity getById( Long id );
+    public Entity getById( Long id ) {
+        Optional< Entity > foundEntity = repository.findById( id );
 
-    public abstract List< Entity > getAll( );
+        if ( appConfig.getSoftDelete( ) ) {
+            if ( foundEntity.isEmpty( ) ) {
+                throw new RuntimeException( "Entity not found" ); // TODO: Custom Exception
+            }
+
+            Entity entity = foundEntity.get( );
+
+            if ( entity.getIsDeleted( ) ) {
+                throw new RuntimeException( "Entity is in Archive." ); // TODO: Custom Exception
+            }
+
+            return entity;
+        }
+
+        return foundEntity.orElseThrow( ( ) -> new RuntimeException( "Entity not found" ) ); // TODO: Custom Exception
+    }
+
+    public abstract Set< Entity > getAll( );
 }

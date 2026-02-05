@@ -1,6 +1,7 @@
 spring:
   config:
     import:
+      - classpath:application-dev-application.yaml
       - classpath:application-dev-actuator.yml
       - classpath:application-dev-jte.yaml
       - classpath:application-dev-log.yml

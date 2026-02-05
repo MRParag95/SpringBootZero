@@ -6,6 +6,8 @@ import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.thezerobytehunter.springbootzero.base.entity.BaseEntity;
 
+import java.util.Optional;
+
 @NoRepositoryBean
 public interface AbstractRepository< Entity extends BaseEntity > extends
         JpaRepository< Entity, Long >,
