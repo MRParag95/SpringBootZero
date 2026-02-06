@@ -1,5 +1,6 @@
 package org.thezerobytehunter.springbootzero.base.service;
 
+import com.oracle.svm.core.annotate.Inject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,11 @@ public abstract class AbstractCRUDService<
         Response extends IResponse
         > implements IAbstractCRUDService< Entity, Request, Response > {
     private final AbstractRepository< Entity > repository;
-    private final AppConfig appConfig;
+
+    @Inject
+    private AppConfig appConfig;
+
+    private Class< Entity > entityClass;
 
     @Transactional
     @Override
@@ -98,19 +103,19 @@ public abstract class AbstractCRUDService<
 
         if ( appConfig.getSoftDelete( ) ) {
             if ( foundEntity.isEmpty( ) ) {
-                throw new RuntimeException( "Entity not found" ); // TODO: Custom Exception
+                throw new RuntimeException( "%s not found".formatted( entityClass.getSimpleName() ) ); // TODO: Custom Exception
             }
 
             Entity entity = foundEntity.get( );
 
             if ( entity.getIsDeleted( ) ) {
-                throw new RuntimeException( "Entity is in Archive." ); // TODO: Custom Exception
+                throw new RuntimeException( "%s is in Archive.".formatted( entityClass.getSimpleName() ) ); // TODO: Custom Exception
             }
 
             return entity;
         }
 
-        return foundEntity.orElseThrow( ( ) -> new RuntimeException( "Entity not found" ) ); // TODO: Custom Exception
+        return foundEntity.orElseThrow( ( ) -> new RuntimeException( "%s not found".formatted( entityClass.getSimpleName() ) ) ); // TODO: Custom Exception
     }
 
     public abstract Set< Entity > getAll( );
