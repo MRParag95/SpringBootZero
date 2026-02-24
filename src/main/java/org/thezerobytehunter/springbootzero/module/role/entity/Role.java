@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.thezerobytehunter.springbootzero.base.entity.BaseEntity;
 
 @Getter
@@ -16,6 +18,8 @@ import org.thezerobytehunter.springbootzero.base.entity.BaseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
+@DynamicInsert
+@DynamicUpdate
 @Entity
 @Table( name = "role" )
 public class Role extends BaseEntity {
